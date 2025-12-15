@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Buat Desy S nya satu pake y</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+
+    /* ===== LAYAR UTAMA (CLOVER + HIJAU MUDA) ===== */
+    body {
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+      background-color:#d4f8d9; /* hijau muda */
+      background-image:
+        radial-gradient(circle at 10px 10px, #7ed957 2px, transparent 0),
+        radial-gradient(circle at 30px 30px, #34d399 3px, transparent 0),
+        radial-gradient(circle at 50px 10px, #6ee7b7 2px, transparent 0),
+        radial-gradient(circle at 70px 30px, #22c55e 3px, transparent 0);
+      background-size:80px 80px; /* efek pola clover kecil */
+    }
+
+    .container {
+      max-width:500px;
+      width:100%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    /* ===== CARD UCAPAN ===== */
+    .card-wrapper {
+      opacity:0;
+      transform:scale(0.9) translateY(20px);
+      pointer-events:none;
+      transition:opacity 0.6s ease, transform 0.6s ease;
+    }
+    .card-wrapper.tampil {
+      opacity:1;
+      transform:scale(1) translateY(0);
+      pointer-events:auto;
+    }
+
+    .card {
+      background:rgba(240, 253, 244, 0.95); /* hijau sangat muda */
+      border-radius:18px;
+      padding:24px 18px;
+      box-shadow:0 12px 30px rgba(16, 185, 129, 0.4);
+      border:1px solid rgba(22, 163, 74, 0.4);
+      text-align:center;
+    }
+
+    .title {
+      font-size:20px;
+      margin-bottom:12px;
+      font-weight:bold;
+      color:#15803d;
+    }
+    .text {
+      font-size:16px;
+      line-height:1.6;
+      min-height:90px;
+      margin-bottom:16px;
+      color:#064e3b;
+    }
+    .photo {
+      width:100%;
+      max-height:320px;
+      object-fit:cover;
+      border-radius:12px;
+      display:none;
+      margin-bottom:16px;
+      border:2px solid #22c55e;
+    }
+
+    .btn {
+      display:inline-block;
+      padding:10px 18px;
+      border-radius:999px;
+      border:none;
+      background:#22c55e;
+      color:#064e3b;
+      font-weight:bold;
+      font-size:14px;
+      cursor:pointer;
+      margin-top:6px;
+      box-shadow:0 3px 10px rgba(22, 163, 74, 0.4);
+      transition:background 0.2s, transform 0.1s, box-shadow 0.1s;
+    }
+    .btn:hover {
+      background:#16a34a;
+      transform:translateY(-1px);
+      box-shadow:0 5px 14px rgba(22, 163, 74, 0.5);
+    }
+    .btn:active {
+      transform:translateY(0);
+      box-shadow:0 2px 8px rgba(22, 163, 74, 0.35);
+    }
+    .btn:disabled {
+      background:#bbf7d0;
+      color:#6b7280;
+      cursor:default;
+      box-shadow:none;
+    }
+    .btn-wa {
+      background:#16a34a;
+      color:#ecfdf5;
+    }
+    .btn-wa:hover {
+      background:#15803d;
+    }
+    .small {
+      font-size:11px;
+      opacity:0.8;
+      margin-top:10px;
+      color:#047857;
+    }
+
+    /* ===== OVERLAY SURAT PERTAMA ===== */
+    .overlay {
+      position:fixed;
+      inset:0;
+      background:rgba(15, 118, 110, 0.85);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      z-index:10;
+      animation:overlayFadeIn 0.7s ease forwards;
+    }
+    @keyframes overlayFadeIn {
+      from {opacity:0;}
+      to   {opacity:1;}
+    }
+    @keyframes overlayFadeOut {
+      from {opacity:1;}
+      to   {opacity:0;}
+    }
+
+    .envelope {
+      width:260px;
+      height:190px;
+      background:#ecfdf5;
+      border-radius:12px;
+      position:relative;
+      box-shadow:0 18px 45px rgba(0,0,0,0.45);
+      cursor:pointer;
+      overflow:hidden;
+      transform:scale(0.9);
+      animation:envelopePop 0.8s ease-out forwards;
+    }
+    @keyframes envelopePop {
+      0% {transform:scale(0.7) translateY(30px); opacity:0;}
+      60%{transform:scale(1.05) translateY(0); opacity:1;}
+      100%{transform:scale(1) translateY(0); opacity:1;}
+    }
+
+    .envelope::before {
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:linear-gradient(180deg, #bbf7d0 0%, #86efac 60%, #ecfdf5 100%);
+      clip-path:polygon(0 0, 100% 0, 50% 50%);
+    }
+
+    .envelope-inner {
+      position:absolute;
+      inset:18px;
+      background:#ecfdf5;
+      border-radius:10px;
+      box-shadow:inset 0 0 0 1px #bbf7d0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      padding:14px;
+      text-align:center;
+    }
+
+    .envelope-heart {
+      font-size:32px;
+      margin-bottom:10px;
+    }
+    .envelope-text-main {
+      font-size:16px;
+      font-weight:bold;
+      color:#16a34a;
+      margin-bottom:4px;
+    }
+    .envelope-text-sub {
+      font-size:13px;
+      color:#047857;
+    }
+    .envelope-hint {
+      position:absolute;
+      bottom:10px;
+      width:100%;
+      text-align:center;
+      font-size:11px;
+      color:#0f766e;
+      animation:hintPulse 1.4s ease-in-out infinite;
+    }
+    @keyframes hintPulse {
+      0%,100% {opacity:0.4; transform:translateY(0);}
+      50%     {opacity:1; transform:translateY(-2px);}
+    }
+
+    .overlay.tutup {
+      animation:overlayFadeOut 0.7s ease forwards;
+      pointer-events:none;
+    }
+
+    @media (max-width:480px) {
+      .card {padding:20px 14px;}
+      .title {font-size:18px;}
+      .text  {font-size:15px;}
+      .envelope {width:230px;height:170px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== SURAT OVERLAY PERTAMA ===== -->
+<div class="overlay" id="overlay">
+  <div class="envelope" id="envelope">
+    <div class="envelope-inner">
+      <div class="envelope-heart">✉️</div>
+      <div class="envelope-text-main">Desy si soft spoken</div>
+      <div class="envelope-text-sub">SELAMAT ULANG TAHUN YAA DESY SABRINA</div>
+    </div>
+    <div class="envelope-hint">Buka Buka buka</div>
+  </div>
+</div>
+
+<!-- ===== CARD UTAMA ===== -->
+<div class="container">
+  <div class="card-wrapper" id="cardWrapper">
+    <div class="card">
+      <div class="title">Selamat Ulang tahun</div>
+      <img id="foto" class="photo" src="" alt="Foto spesial">
+      <div id="teks" class="text"></div>
+
+      <button id="btnNext" class="btn">Lanjut</button>
+
+      <!-- tombol muncul di akhir -->
+      <button id="btnHome" class="btn" style="margin-top:10px;display:none;">
+        Ke Halaman Utama
+      </button>
+      <button id="btnKenangan" class="btn btn-wa" style="margin-top:10px;display:none;">
+        foto foto rosblok
+      </button>
+
+      <div class="small" id="status"></div>
+    </div>
+  </div>
+</div>
+
+<audio id="musik" src="lagu.mp3" autoplay loop></audio>
+
+<script>
+  // ===== DATA BISA KAMU EDIT =====
+  const ucapan = [
+    "Hai Desy Sabrina, Selamat Ulang tahun yaa, semoga panjang umur, sehat selalu, banyak rezeki jangan banyak begadang eheheheh.😋",
+    "Semoga apa yang dicita citakan semua tercapai dan yang di impikan tercapai",
+    "Jangan pernah atit yaa, harus kaut terusan 😏",
+    "Semoga Tugas Akhirnya lancar, dan tepat waktu (bareng bareng lulus aamiin) cemangaaat☝️",
+    "SELAMAT ULANG TAHUN DESY SABRINA SEMANGAAAT YAAAA🙌"
+  ];
+
+  const foto = [
+    "2.jpeg",
+    "1.png"
+  ];
+
+  // ganti URL berikut sesuai kebutuhanmu
+  const homeUrl     = "https://contoh-domainmu.com/"; 
+  const kenanganUrl = "https://drive.google.com/drive/folders/17GnEqhTsU8PF4PHBFmVEMX9Lpav2p6cZ?usp=sharing";
+
+  // ===== LOGIKA CARD UCAPAN =====
+  let tahap = "teks";
+  let indexTeks = 0;
+  let indexFoto = 0;
+
+  const teksEl      = document.getElementById("teks");
+  const fotoEl      = document.getElementById("foto");
+  const btnNext     = document.getElementById("btnNext");
+  const statusEl    = document.getElementById("status");
+  const musikEl     = document.getElementById("musik");
+  const cardWrapper = document.getElementById("cardWrapper");
+  const btnHome     = document.getElementById("btnHome");
+  const btnKenangan = document.getElementById("btnKenangan");
+
+  function tampilTeks() {
+    if (indexTeks < ucapan.length) {
+      fotoEl.style.display = "none";
+      teksEl.textContent = ucapan[indexTeks];
+      statusEl.textContent = "Ucapan " + (indexTeks + 1) + " dari " + ucapan.length;
+      indexTeks++;
+      btnNext.textContent = (indexTeks === ucapan.length) ? "Lihat Foto" : "Lanjut";
+    } else {
+      tahap = "foto";
+      indexFoto = 0;
+      tampilFoto();
+    }
+  }
+
+  function tampilFoto() {
+    if (indexFoto < foto.length) {
+      const src = foto[indexFoto];
+      if (src && src.trim() !== "") {
+        fotoEl.src = src;
+        fotoEl.style.display = "block";
+      } else {
+        fotoEl.style.display = "none";
+      }
+      teksEl.textContent = "";
+      statusEl.textContent = "Foto " + (indexFoto + 1) + " dari " + foto.length;
+      indexFoto++;
+      btnNext.textContent = (indexFoto === foto.length) ? "Selesai" : "Lanjut";
+    } else {
+      tahap = "selesai";
+      fotoEl.style.display = "block";
+      statusEl.textContent = "Sudah sampai akhir, makasih udah baca sampai habis 🤍";
+      teksEl.textContent = "";
+      btnNext.disabled = true;
+      btnNext.textContent = "Selesai";
+
+      // munculkan tombol home & kenangan
+      btnHome.style.display = "inline-block";
+      btnKenangan.style.display = "inline-block";
+    }
+  }
+
+  btnNext.addEventListener("click", function () {
+    if (tahap === "teks") {
+      tampilTeks();
+    } else if (tahap === "foto") {
+      tampilFoto();
+    }
+  });
+
+  // tombol ke halaman utama
+  btnHome.addEventListener("click", function () {
+    if (homeUrl) {
+      window.location.href = homeUrl;
+    }
+  });
+
+  // tombol ke Google Drive kenangan
+  btnKenangan.addEventListener("click", function () {
+    if (kenanganUrl) {
+      window.open(kenanganUrl, "_blank");
+    }
+  });
+
+  // auto-play musik setelah interaksi pertama
+  document.addEventListener("click", function () {
+    if (musikEl && musikEl.paused) {
+      musikEl.play().catch(() => {});
+    }
+  }, { once:true });
+
+  // ===== LOGIKA SURAT OVERLAY =====
+  const overlay  = document.getElementById("overlay");
+  const envelope = document.getElementById("envelope");
+
+  function bukaSurat() {
+    overlay.classList.add("tutup");
+    cardWrapper.classList.add("tampil");
+    setTimeout(() => {
+      overlay.style.display = "none";
+      tampilTeks(); // mulai ucapan setelah surat dibuka
+    }, 650);
+  }
+
+  envelope.addEventListener("click", bukaSurat);
+</script>
+
+</body>
+</html>
